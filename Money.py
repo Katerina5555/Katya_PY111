@@ -5,21 +5,41 @@ import json
 
 
 class Money:
+    wallet = []
+
     def __init__(self, name: Union[str, None], sum_of_money: float):
         self.name = name
         self.sum_of_money = sum_of_money
+        Money.wallet.append(self)
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.name}, ' \
                f'{self.__class__.__name__}({self.sum_of_money})'
 
+    def __str__(self):
+        return f'{self.__class__.__name__}({self.sum_of_money}) ' \
+               f'{self.__class__.__name__}({self.name} '
+
+    @classmethod
+    def __getitem__(cls):
+        print(cls.wallet)
+
 
     def convert_to_valute(self):
         """
-        Метод для конвертации
+        Метод для конвертации валюты
         :return:
-        возвращает
+        - уточняет наличие возможности загрузки данных;
+        - выводит время последней загрузки;
+        - проверяет валюту конвертации;
+        - конвертирует;
+        - переносит переконвертированную валюту в нужный класс (НЕ ГОТОВО)
         """
+
+        dict_ = json.load(open("CBR.json"))
+        # print(dict.items(dict_['Valute']['USD']))
+        print("Время последней загрузки файла из источника: "
+              + dict_["Date"])
         answer = input("Есть возможность загрузить файл с сайта ЦБ РФ?")
 
         if answer == "Да" or answer == "да":
@@ -27,26 +47,32 @@ class Money:
             price = requests.get(url, allow_redirects=True)
             open("CBR.json", 'wb').write(price.content)
 
+        valute_name = str(input("Введите валюту в которую хотите "
+                            "конвертировать (международное обозначение): "
+                                  "")).upper()
+        if valute_name != "RUB":
+            exchange_rate = dict_['Valute'][valute_name]['Value']
+            # print(b)
 
-        dict_ = json.load(open("CBR.json"))
-        # print(dict.items(dict_['Valute']['USD']))
-        print("Время последней загрузки файла из источника: "
-              + dict_["Date"])
-        valute_name = input("Введите валюту в которую хотите "
-                            "конвертировать (международное обозначение): ")
-        exchange_rate = dict_['Valute'][valute_name]['Value']
-        # print(b)
-        if self.name != "RUB":
-            value_converting_valute_to_rub = dict_['Valute'][self.name]['Value']
-            # print(value_converting_valute_to_rub)
-            value_in_rub = self.sum_of_money * value_converting_valute_to_rub
-            print(round((value_in_rub / exchange_rate), 2))
+            if self.name != "RUB":
+                exchange_rate_to_rub = dict_['Valute'][self.name]['Value']
+                # print(exchange_rate_to_rub)
+                if self.name != valute_name:
+                    value_in_rub = self.sum_of_money * exchange_rate_to_rub
+                    print(round((value_in_rub / exchange_rate), 2))
+                else:
+                    print(f"Операция не проведена. Вы пытаетесь конвертировать {self.name} в {self.name}")
+            else:
+                print(round((self.sum_of_money / exchange_rate), 2))
         else:
-            print(round((self.sum_of_money / exchange_rate), 2))
+            if self.name != "RUB":
+                exchange_rate_to_rub = dict_['Valute'][self.name]['Value']
+                value_in_rub = self.sum_of_money * exchange_rate_to_rub
+                print(round(value_in_rub, 2))
+            else:
+                print(f"Операция не проведена. Вы пытаетесь конвертировать {self.name} в {self.name}")
 
-    def wallet(self):
-
-
+    # def wallet(self):
 
 
 class Rubles(Money):
@@ -62,10 +88,22 @@ class Euro(Money):
         self.sum_of_money = sum_of_money
         super().__init__("EUR", sum_of_money)
 
+class Dollar(Money):
+    def __init__(self, name: Union[str, None], sum_of_money: float):
+        self.name = name
+        self.sum_of_money = sum_of_money
+        super().__init__("USD", sum_of_money)
+
 
 if __name__ == '__main__':
-    euro = Money('EUR', 1)
-    rubles = Rubles('RUB', 1234.56)
-    Money.convert_to_valute(euro)
+    euro_1 = Euro('EUR', 5)
+    euro_2 = Euro('EUR', 20)
+
+    rubles_1 = Rubles('RUB', 100)
+    rubles_2 = Rubles('RUB', 5000)
+
+    Money.convert_to_valute(euro_2)
+    print("В кошельке: ")
+    Money.__getitem__()
 
 
