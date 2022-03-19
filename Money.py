@@ -36,10 +36,6 @@ class Money:
         - переносит переконвертированную валюту в нужный класс (НЕ ГОТОВО)
         """
 
-        dict_ = json.load(open("CBR.json"))
-        # print(dict.items(dict_['Valute']['USD']))
-        print("Время последней загрузки файла из источника: "
-              + dict_["Date"])
         answer = input("Есть возможность загрузить файл с сайта ЦБ РФ?")
 
         if answer == "Да" or answer == "да":
@@ -47,6 +43,10 @@ class Money:
             price = requests.get(url, allow_redirects=True)
             open("CBR.json", 'wb').write(price.content)
 
+        dict_ = json.load(open("CBR.json"))
+        # print(dict.items(dict_['Valute']['USD']))
+        print("Время последнего обновления файла в источнике: "
+              + dict_["Date"])
         valute_name = str(input("Введите валюту в которую хотите "
                             "конвертировать (международное обозначение): "
                                   "")).upper()
@@ -59,16 +59,19 @@ class Money:
                 # print(exchange_rate_to_rub)
                 if self.name != valute_name:
                     value_in_rub = self.sum_of_money * exchange_rate_to_rub
-                    print(round((value_in_rub / exchange_rate), 2))
+                    print(f'После конвертации сумма {self.sum_of_money} {self.name} составила '
+                          f'{round((value_in_rub / exchange_rate), 2)} {valute_name}')
                 else:
                     print(f"Операция не проведена. Вы пытаетесь конвертировать {self.name} в {self.name}")
             else:
-                print(round((self.sum_of_money / exchange_rate), 2))
+                print(f'После конвертации сумма {self.sum_of_money} {self.name} составила '
+                      f'{round((self.sum_of_money / exchange_rate), 2)} {valute_name}')
         else:
             if self.name != "RUB":
                 exchange_rate_to_rub = dict_['Valute'][self.name]['Value']
                 value_in_rub = self.sum_of_money * exchange_rate_to_rub
-                print(round(value_in_rub, 2))
+                print(f'После конвертации сумма {self.sum_of_money} {self.name} составила '
+                      f'{round(value_in_rub, 2)} {valute_name}')
             else:
                 print(f"Операция не проведена. Вы пытаетесь конвертировать {self.name} в {self.name}")
 
@@ -77,20 +80,20 @@ class Money:
 
 class Rubles(Money):
     def __init__(self, name: Union[str, None], sum_of_money: float):
-        self.name = name
+        self._name = name
         self.sum_of_money = sum_of_money
         super().__init__("RUB", sum_of_money)
 
 
 class Euro(Money):
     def __init__(self, name: Union[str, None], sum_of_money: float):
-        self.name = name
+        self._name = name
         self.sum_of_money = sum_of_money
         super().__init__("EUR", sum_of_money)
 
 class Dollar(Money):
     def __init__(self, name: Union[str, None], sum_of_money: float):
-        self.name = name
+        self._name = name
         self.sum_of_money = sum_of_money
         super().__init__("USD", sum_of_money)
 
