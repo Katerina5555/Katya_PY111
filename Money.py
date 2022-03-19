@@ -16,7 +16,7 @@ class Money:
 
     def convert_to_valute(self):
         """
-        метод для конвертации рублей в иную валюту
+        Метод для конвертации
         :return:
         возвращает
         """
@@ -34,23 +34,38 @@ class Money:
               + dict_["Date"])
         valute_name = input("Введите валюту в которую хотите "
                             "конвертировать (международное обозначение): ")
-        b = dict_['Valute'][valute_name]['Value']
+        exchange_rate = dict_['Valute'][valute_name]['Value']
         # print(b)
-        print(round((self.sum_of_money / b), 2))
+        if self.name != "RUB":
+            value_converting_valute_to_rub = dict_['Valute'][self.name]['Value']
+            # print(value_converting_valute_to_rub)
+            value_in_rub = self.sum_of_money * value_converting_valute_to_rub
+            print(round((value_in_rub / exchange_rate), 2))
+        else:
+            print(round((self.sum_of_money / exchange_rate), 2))
+
+    def wallet(self):
+
+
+
 
 class Rubles(Money):
-    def __init__(self, name="RUB", sum_of_money=0):
+    def __init__(self, name: Union[str, None], sum_of_money: float):
         self.name = name
         self.sum_of_money = sum_of_money
-        super().__init__()
+        super().__init__("RUB", sum_of_money)
+
 
 class Euro(Money):
-    pass
+    def __init__(self, name: Union[str, None], sum_of_money: float):
+        self.name = name
+        self.sum_of_money = sum_of_money
+        super().__init__("EUR", sum_of_money)
 
 
 if __name__ == '__main__':
-    money1 = Money('RUB', 1234.56)
-    rubles1 = Rubles('RUB', 1234.56)
-    Money.convert_to_valute(rubles1)
+    euro = Money('EUR', 1)
+    rubles = Rubles('RUB', 1234.56)
+    Money.convert_to_valute(euro)
 
 
